@@ -3,7 +3,7 @@ local M = {}
 -- remove request headers with defined header array
 local function remove_headers(headers)
   for _, header in ipairs(headers) do
-    value = kong.request.get_header(header)
+    local value = kong.request.get_header(header)
     if value then
       kong.log.info("Header found and removed: "..header.."-"..value)
       kong.service.request.clear_header(header)
