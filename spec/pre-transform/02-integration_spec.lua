@@ -1,7 +1,7 @@
 local helpers = require "spec.helpers"
 
 
-local PLUGIN_NAME = "pre-transformer"
+local PLUGIN_NAME = "pre-transform"
 
 
 for _, strategy in helpers.all_strategies() do
@@ -21,7 +21,13 @@ for _, strategy in helpers.all_strategies() do
       bp.plugins:insert {
         name = PLUGIN_NAME,
         route = { id = route1.id },
-        config = {},
+        config = {
+          remove = {
+            headers = {
+              "X-Test-Header"
+            }
+          }
+        },
       }
 
       -- start kong
@@ -50,24 +56,25 @@ for _, strategy in helpers.all_strategies() do
     end)
 
 
-    --[[
+
     describe("request", function()
-      it("gets a 'hello-world' header", function()
+      it("removes a header", function()
         local r = client:get("/request", {
           headers = {
-            host = "test1.com"
+            host = "test1.com",
+            ["X-Test-Header"] = "test"
           }
         })
         -- validate that the request succeeded, response status 200
         assert.response(r).has.status(200)
         -- now check the request (as echoed by mockbin) to have the header
-        local header_value = assert.request(r).has.header("hello-world")
+        local header_value = assert.request(r).has.Not.header("X-Test-Header")
         -- validate the value of that header
-        assert.equal("this is on a request", header_value)
+        assert.equal("X-Test-Header", header_value)
       end)
     end)
 
-
+    --[[
 
     describe("response", function()
       it("gets a 'bye-world' header", function()

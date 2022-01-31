@@ -1,12 +1,13 @@
 local typedefs = require "kong.db.schema.typedefs"
-
+local validate_header_name = require("kong.tools.utils").validate_header_name
 local plugin_name = ({...})[1]:match("^kong%.plugins%.([^%.]+)")
 
-local function validate_headers(pair)
+function validate_headers(pair)
   local name, value = pair:match("^([^:]+):*(.-)$")
   if validate_header_name(name) == nil then
     return nil, string.format("'%s' is not a valid header", tostring(name))
   end
+  return true
 end
 
 local schema = {
@@ -18,6 +19,7 @@ local schema = {
         type = "record",
         fields = {
           {
+            -- remove configuration
             remove = {
               type = "record",
               fields = {
@@ -35,11 +37,6 @@ local schema = {
           }
         },
         entity_checks = {
-          -- add some validation rules across fields
-          -- the following is silly because it is always true, since they are both required
-          -- { at_least_one_of = { "request_header", "response_header" }, },
-          -- We specify that both header-names cannot be the same
-          -- { distinct = { "request_header", "response_header"} },
         },
       },
     },
