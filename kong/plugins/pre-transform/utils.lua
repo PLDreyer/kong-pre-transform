@@ -25,9 +25,9 @@ end
 
 -- apply transform on request with transform config
 function M.transform_request(transform_config)
-  for key, value in pairs(transform_config) do
-    if key == "remove" then
-      remove_properties(value)
+  for type, config in pairs(transform_config) do
+    if type == "remove" then
+      remove_properties(config)
     end
   end
 end
